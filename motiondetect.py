@@ -1,6 +1,6 @@
-import numpy as np		      # importing Numpy for use w/ OpenCV
+mport numpy as np		      # importing Numpy for use w/ OpenCV
 import cv2                            # importing Python OpenCV
-from datetime import datetime         # importing datetime for naming files w/ timestamp
+from time import time         # importing time for naming files w/ timestamp
 import argparse
 import time
 
@@ -42,17 +42,19 @@ t_minus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 t = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 t_plus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 # Lets use a time check so we only take 1 pic per sec
-timeCheck = datetime.now().strftime('%Ss')
+timeCheck = time.time().strftime('%Ss')
+print ("time.nox = " + timeCheck
+#timeCheck = time.time().strftime('%Ss')
 
 while True:
   ret, frame = cam.read()	      # read from camera
   totalDiff = cv2.countNonZero(diffImg(t_minus, t, t_plus))	# this is total difference number
   text = "threshold: " + str(totalDiff)				# make a text showing total diff.
   cv2.putText(frame, text, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2)   # display it on screen
-  if totalDiff > threshold and timeCheck != datetime.now().strftime('%Ss'):
+  if totalDiff > threshold and timeCheck != time.time().strftime('%Ss'):
     dimg= cam.read()[1]
-    cv2.imwrite(datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss%f') + '.jpg', dimg)
-  timeCheck = datetime.now().strftime('%Ss')
+    cv2.imwrite(time.time().strftime('%Y%m%d_%Hh%Mm%Ss%f') + '.jpg', dimg)
+  timeCheck = time.time().strftime('%Ss')
   # Read next image
   t_minus = t
   t = t_plus

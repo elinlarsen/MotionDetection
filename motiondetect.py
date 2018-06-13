@@ -1,6 +1,6 @@
 import numpy as np		      # importing Numpy for use w/ OpenCV
 import cv2                            # importing Python OpenCV
-from datetime import datetime         # importing datetime for naming files w/ timestamp
+from time import time         # importing time for naming files w/ timestamp
 import argparse
 import time
 
@@ -25,6 +25,7 @@ if args.get("video", None) is None:
 # otherwise, we are reading from a video file
 else:
     cam = cv2.VideoCapture(args["video"])
+    filename =args["video"]
 
 
 def diffImg(t0, t1, t2):              # Function to calculate difference between images.
@@ -32,7 +33,7 @@ def diffImg(t0, t1, t2):              # Function to calculate difference between
   d2 = cv2.absdiff(t1, t0)
   return cv2.bitwise_and(d1, d2)
 
-#threshold = 120000                     # Threshold for triggering "motion detection"
+threshold = 12000                     # Threshold for triggering "motion detection"
 
 winName = "Movement Indicator"	      # comment to hide window
 cv2.namedWindow(winName)              # comment to hide window
@@ -41,18 +42,27 @@ cv2.namedWindow(winName)              # comment to hide window
 t_minus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 t = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 t_plus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
+#open a file to write inside time with and without mvmt
+file = open(filename+".txt","w")
+file.write("time,mouvement \n" )
 # Lets use a time check so we only take 1 pic per sec
-timeCheck = datetime.now().strftime('%Ss')
+startTime = time.time() #.strftime('%Ss')
+print ("time.nox = " + str(startTime))
+timeCheck = time.time()
 
 while True:
   ret, frame = cam.read()	      # read from camera
   totalDiff = cv2.countNonZero(diffImg(t_minus, t, t_plus))	# this is total difference number
   text = "threshold: " + str(totalDiff)				# make a text showing total diff.
   cv2.putText(frame, text, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2)   # display it on screen
-  if totalDiff > threshold and timeCheck != datetime.now().strftime('%Ss'):
-    dimg= cam.read()[1]
-    cv2.imwrite(datetime.now().strftime('%Y%m%d_%Hh%Mm%Ss%f') + '.jpg', dimg)
-  timeCheck = datetime.now().strftime('%Ss')
+  filename = str(time.time() - startTime) 
+  if totalDiff > threshold : #and timeCheck != time.time():
+    #dimg= cam.read()[1]
+    #cv2.imwrite( '_' + filename+ '.jpg', dimg) #time.time().strftime('%Y%m%d_%Hh%Mm%Ss%f')
+    file.write(filename + ",true \n" )
+  else:
+    file.write(filename + ",false \n" )
+  timeCheck = time.time()
   # Read next image
   t_minus = t
   t = t_plus
@@ -63,3 +73,4 @@ while True:
   if key == 27:			 # comment this 'if' to hide window
     cv2.destroyWindow(winName)
     break
+    

@@ -26,6 +26,7 @@ if args.get("video", None) is None:
 else:
     cam = cv2.VideoCapture(args["video"])
     filename =args["video"]
+    print (filename)
 
 
 def diffImg(t0, t1, t2):              # Function to calculate difference between images.
@@ -33,7 +34,7 @@ def diffImg(t0, t1, t2):              # Function to calculate difference between
   d2 = cv2.absdiff(t1, t0)
   return cv2.bitwise_and(d1, d2)
 
-threshold = 12000                     # Threshold for triggering "motion detection"
+threshold = 40000                     # Threshold for triggering "motion detection"
 
 winName = "Movement Indicator"	      # comment to hide window
 cv2.namedWindow(winName)              # comment to hide window
@@ -47,7 +48,7 @@ file = open(filename+".txt","w")
 file.write("time,mouvement \n" )
 # Lets use a time check so we only take 1 pic per sec
 startTime = time.time() #.strftime('%Ss')
-print ("time.nox = " + str(startTime))
+print("time.nox = " + str(startTime))
 timeCheck = time.time()
 
 while True:

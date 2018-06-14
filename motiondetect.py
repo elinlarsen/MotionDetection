@@ -1,6 +1,5 @@
-mport numpy as np		      # importing Numpy for use w/ OpenCV
-import cv2                            # importing Python OpenCV
-from time import time         # importing time for naming files w/ timestamp
+import numpy as np		      # importing Numpy for use w/ OpenCV
+import cv2                # importing time for naming files w/ timestamp
 import argparse
 import time
 
@@ -21,10 +20,12 @@ args = vars(ap.parse_args())
 if args.get("video", None) is None:
     cam = cv2.VideoCapture(0)     # Lets initialize capture on webcam
     time.sleep(0.25)
+    filename = "defaultfilename"
 
 # otherwise, we are reading from a video file
 else:
     cam = cv2.VideoCapture(args["video"])
+    ##filename = args["video"].split('.')[0]
 
 
 def diffImg(t0, t1, t2):              # Function to calculate difference between images.
@@ -32,7 +33,8 @@ def diffImg(t0, t1, t2):              # Function to calculate difference between
   d2 = cv2.absdiff(t1, t0)
   return cv2.bitwise_and(d1, d2)
 
-#threshold = 120000                     # Threshold for triggering "motion detection"
+threshold = 12000                     # Threshold for triggering "motion detection"
+
 
 winName = "Movement Indicator"	      # comment to hide window
 cv2.namedWindow(winName)              # comment to hide window
@@ -42,19 +44,25 @@ t_minus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 t = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 t_plus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 # Lets use a time check so we only take 1 pic per sec
-timeCheck = time.time().strftime('%Ss')
-print ("time.nox = " + timeCheck
-#timeCheck = time.time().strftime('%Ss')
+startTime = time.time()
+timeCheck = time.time()
+print ("time.nox = " + str(timeCheck))
+file = open("filename","w")
+
 
 while True:
   ret, frame = cam.read()	      # read from camera
   totalDiff = cv2.countNonZero(diffImg(t_minus, t, t_plus))	# this is total difference number
   text = "threshold: " + str(totalDiff)				# make a text showing total diff.
   cv2.putText(frame, text, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2)   # display it on screen
-  if totalDiff > threshold and timeCheck != time.time().strftime('%Ss'):
+  if totalDiff > threshold and timeCheck != time.time():
+    print ("on est dans le if")
+    file.write(str(timeCheck-startTime) + ",true")
     dimg= cam.read()[1]
-    cv2.imwrite(time.time().strftime('%Y%m%d_%Hh%Mm%Ss%f') + '.jpg', dimg)
-  timeCheck = time.time().strftime('%Ss')
+    cv2.imwrite(str(timeCheck-startTime)+ '.jpg', dimg)
+  else:
+      file.write(str(timeCheck-startTime) + ",true")
+  timeCheck = time.time()
   # Read next image
   t_minus = t
   t = t_plus

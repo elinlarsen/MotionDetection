@@ -34,7 +34,7 @@ def diffImg(t0, t1, t2):              # Function to calculate difference between
   d2 = cv2.absdiff(t1, t0)
   return cv2.bitwise_and(d1, d2)
 
-threshold = 40000                     # Threshold for triggering "motion detection"
+threshold = 10000                     # Threshold for triggering "motion detection"
 
 # Read three images first:
 t_minus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
@@ -42,20 +42,23 @@ t = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 t_plus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 #open a file to write inside time with and without mvmt
 file = open(filename+".txt","w")
-file.write("time,threshold,chrono,mouvement \n" )
+file.write("count,threshold,chrono,timestamp,mouvement \n" )
 # Lets use a time check so we only take 1 pic per sec
 startTime = time.time() #.strftime('%Ss')
 
 #timeCheck = time.time()
 count = 0
+nbframes = cam.get(7)
+print ("number of frames " +str(cam.get(7)))
 
-while True:
+while count < (int(nbframes)-3):
   count +=1
   totalDiff = cv2.countNonZero(diffImg(t_minus, t, t_plus))	# this is total difference number
+  ts = cam.get(0) #CAP_PROP_POS_MSEC = 0 get the timestamp in ms
   if totalDiff > threshold : 
-    file.write(str(count) + "," +str(totalDiff)+ "," +str(time.time() - startTime) +",true \n" )
+    file.write(str(count) + "," +str(totalDiff)+ "," +str(time.time() - startTime) +","+ str(ts/1000) +",true \n" )
   else:
-    file.write(str(count) + "," +str(totalDiff) +str(time.time() - startTime) +",false \n"  )
+    file.write(str(count) + "," +str(totalDiff) +","+str(time.time() - startTime) +","+ str(ts/1000) +",false \n"  )
   t_minus = t
   t = t_plus
   t_plus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)

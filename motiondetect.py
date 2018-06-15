@@ -1,8 +1,8 @@
 import numpy as np		      # importing Numpy for use w/ OpenCV
 import cv2                            # importing Python OpenCV
-from time import time         # importing time for naming files w/ timestamp
+import time         # importing time for naming files w/ timestamp
 import argparse
-import time
+
 
 '''
     TODO :
@@ -36,42 +36,33 @@ def diffImg(t0, t1, t2):              # Function to calculate difference between
 
 threshold = 40000                     # Threshold for triggering "motion detection"
 
-winName = "Movement Indicator"	      # comment to hide window
-cv2.namedWindow(winName)              # comment to hide window
-
 # Read three images first:
 t_minus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 t = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 t_plus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
 #open a file to write inside time with and without mvmt
 file = open(filename+".txt","w")
-file.write("time,mouvement \n" )
+file.write("time,threshold,chrono,mouvement \n" )
 # Lets use a time check so we only take 1 pic per sec
 startTime = time.time() #.strftime('%Ss')
-print("time.nox = " + str(startTime))
-timeCheck = time.time()
+
+#timeCheck = time.time()
+count = 0
 
 while True:
-  ret, frame = cam.read()	      # read from camera
+  count +=1
   totalDiff = cv2.countNonZero(diffImg(t_minus, t, t_plus))	# this is total difference number
-  text = "threshold: " + str(totalDiff)				# make a text showing total diff.
-  cv2.putText(frame, text, (20,40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,0), 2)   # display it on screen
-  filename = str(time.time() - startTime) 
-  if totalDiff > threshold : #and timeCheck != time.time():
-    #dimg= cam.read()[1]
-    #cv2.imwrite( '_' + filename+ '.jpg', dimg) #time.time().strftime('%Y%m%d_%Hh%Mm%Ss%f')
-    file.write(filename + ",true \n" )
+  if totalDiff > threshold : 
+    file.write(str(count) + "," +str(totalDiff)+ "," +str(time.time() - startTime) +",true \n" )
   else:
-    file.write(filename + ",false \n" )
-  timeCheck = time.time()
-  # Read next image
+    file.write(str(count) + "," +str(totalDiff) +str(time.time() - startTime) +",false \n"  )
   t_minus = t
   t = t_plus
   t_plus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
-  cv2.imshow(winName, frame)
   
   key = cv2.waitKey(10)
   if key == 27:			 # comment this 'if' to hide window
-    cv2.destroyWindow(winName)
+    #cv2.destroyWindow(winName)
+    print ("chrono : " + str(time.time() - startTime) )
     break
     

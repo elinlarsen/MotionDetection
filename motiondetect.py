@@ -14,7 +14,7 @@ def motionDetect(path):
     print ("path  : " + path )
     cam = cv2.VideoCapture(path)
     filename = path
-    threshold = 1000                     # Threshold for triggering "motion detection"
+    threshold =  800                    # Threshold for triggering "motion detection"
     
     # Read three images first:
     t_minus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
@@ -22,7 +22,7 @@ def motionDetect(path):
     t_plus = cv2.cvtColor(cam.read()[1], cv2.COLOR_RGB2GRAY)
     #open a file to write inside time with and without mvmt
     file = open(filename+".txt","w")
-    file.write("on, off, mvmt \n" )
+    #file.write("on, off, mvmt \n" )
     # Lets use a time check so we only take 1 pic per sec
     startTime = time.time() #.strftime('%Ss')
     
@@ -43,12 +43,12 @@ def motionDetect(path):
         if totalDiff >= threshold and mouvement == False : 
             mouvement = True;
             off = ts/1000;
-            file.write(str(on)+ "," + str(off)  +",False \n" )
+            file.write(str(on)+ "," + str(off)  +",False\n" )
             on = ts/1000;
         elif totalDiff < threshold and mouvement == True :
             mouvement = False;
             off = ts/1000;
-            file.write(str(on)+ "," + str(off) + ",True \n" )
+            file.write(str(on)+ "," + str(off) + ",True\n" )
             on = ts/1000;
         t_minus = t
         t = t_plus
